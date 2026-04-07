@@ -42,7 +42,7 @@ services:
 
   worker:
     build: .
-    command: celery -A app.worker.celery_app worker --loglevel=info -E
+    command: celery -A app.worker.celery_app worker --loglevel=info -E -Q payments.new
     depends_on:
       db:
         condition: service_healthy
@@ -52,4 +52,3 @@ services:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/payments
       SYNC_DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/payments
       REDIS_URL: redis://redis:6379/0
-      CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP: "true"

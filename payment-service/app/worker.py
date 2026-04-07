@@ -11,6 +11,8 @@ from app.models import Payment, PaymentStatus
 from app.services.gateway import process_payment
 
 celery_app = Celery("worker", broker=settings.redis_url, backend=settings.redis_url)
+celery_app.conf.task_routes = {"app.worker.process_payment_task": {"queue": "payments.new"}}
+celery_app.conf.broker_connection_retry_on_startup = True
 
 # Sync engine for Celery tasks
 sync_engine = create_engine(settings.sync_database_url)
