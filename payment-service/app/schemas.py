@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 from typing import Any
-from pydantic import BaseModel, HttpUrl, field_validator
+from pydantic import BaseModel, field_validator
 from app.models import Currency, PaymentStatus
 
 

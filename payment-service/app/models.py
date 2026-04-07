@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timezone
 from decimal import Decimal
 
-from sqlalchemy import String, Numeric, DateTime, JSON, Enum as SAEnum
+from sqlalchemy import String, Numeric, DateTime, JSON, Boolean, Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
 import enum
@@ -33,3 +33,15 @@ class Payment(Base):
     webhook_url: Mapped[str] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     processed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class OutboxEvent(Base):
+    """Outbox pattern: events written atomically with payment, then published to RabbitMQ."""
+    __tablename__ = "outbox_events"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    payment_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    event_type: Mapped[str] = mapped_column(String, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+    published: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
