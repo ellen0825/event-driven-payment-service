@@ -26,3 +26,18 @@ class PaymentResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class PaymentDetail(BaseModel):
+    payment_id: str
+    amount: Decimal
+    currency: Currency
+    description: str | None
+    metadata: dict | None
+    status: PaymentStatus
+    idempotency_key: str
+    webhook_url: str | None
+    created_at: datetime
+    processed_at: datetime | None
+
+    model_config = {"from_attributes": True}

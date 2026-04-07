@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.database import get_db
 from app.models import Payment
-from app.schemas import PaymentCreate, PaymentResponse
+from app.schemas import PaymentCreate, PaymentResponse, PaymentDetail
 from app.worker import process_payment_task
 
 router = APIRouter(prefix="/api/v1/payments", tags=["payments"])
@@ -52,3 +52,24 @@ async def create_payment(
     )
 
     return PaymentResponse(payment_id=payment.id, status=payment.status, created_at=payment.created_at)
+
+
+@router.get("/{payment_id}", response_model=PaymentDetail)
+async def get_payment(payment_id: str, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Payment).where(Payment.id == payment_id))
+    payment = result.scalar_one_or_none()
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+
+    return PaymentDetail(
+        payment_id=payment.id,
+        amount=payment.amount,
+        currency=payment.currency,
+        description=payment.description,
+        metadata=payment.metadata_,
+        status=payment.status,
+        idempotency_key=payment.idempotency_key,
+        webhook_url=payment.webhook_url,
+        created_at=payment.created_at,
+        processed_at=payment.processed_at,
+    )
