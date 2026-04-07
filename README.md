@@ -68,7 +68,6 @@ payment-service/
 ├── .env
 └── .env.example
 ```
-
 ## Getting Started
 
 ### Prerequisites
