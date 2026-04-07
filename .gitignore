@@ -1,4 +1,21 @@
+# Python
 __pycache__/
-.env
+*.py[cod]
+*.pyo
+.venv/
 venv/
+*.egg-info/
+
+# Env
+.env
+.env.*
+
+# Docker volumes / DB data
+postgres_data/
+
+# IDE
+.vscode/
+.idea/
+
+# Alembic
 *.pyc
