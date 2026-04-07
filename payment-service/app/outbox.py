@@ -1,10 +1,13 @@
 """Outbox relay: polls unpublished events and publishes them to RabbitMQ."""
 import asyncio
+import logging
 from sqlalchemy import select, update
 
 from app.broker import broker, PAYMENTS_NEW_QUEUE, PAYMENTS_EXCHANGE
 from app.database import AsyncSessionLocal
 from app.models import OutboxEvent
+
+logger = logging.getLogger(__name__)
 
 
 async def run_outbox_relay():
@@ -32,7 +35,7 @@ async def run_outbox_relay():
                     )
 
                 await session.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"Outbox relay error: {e}")
 
         await asyncio.sleep(1)

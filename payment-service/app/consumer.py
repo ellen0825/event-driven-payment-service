@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import random
 from datetime import datetime, timezone
 
@@ -10,6 +11,7 @@ from app.broker import broker, PAYMENTS_NEW_QUEUE, PAYMENTS_EXCHANGE, PAYMENTS_D
 from app.database import AsyncSessionLocal
 from app.models import Payment, PaymentStatus
 
+logger = logging.getLogger(__name__)
 MAX_RETRIES = 3
 
 
@@ -75,9 +77,11 @@ async def handle_payment(msg: dict, raw_message: RabbitMessage) -> None:
             await raw_message.ack()
             return
 
-        except Exception:
+        except Exception as exc:
+            logger.warning(f"Payment {payment_id} attempt {attempt + 1}/{MAX_RETRIES} failed: {exc}")
             if attempt < MAX_RETRIES - 1:
                 await asyncio.sleep(2 ** attempt)  # 1s → 2s → 4s
 
+    logger.error(f"Payment {payment_id} exhausted all retries, sending to DLQ")
     # All retries exhausted — nack without requeue, RabbitMQ sends to DLQ
     await raw_message.nack(requeue=False)
