@@ -6,7 +6,6 @@ from app.broker import broker
 from app.database import engine, Base
 from app.outbox import run_outbox_relay
 from app.routers.payments import router as payments_router
-import app.consumer  # register subscriber
 
 
 @asynccontextmanager

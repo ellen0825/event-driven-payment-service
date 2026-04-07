@@ -40,3 +40,14 @@ services:
         condition: service_healthy
     env_file:
       - .env
+
+  consumer:
+    build: .
+    command: python consumer_main.py
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    env_file:
+      - .env
